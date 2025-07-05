@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Money ⇄ Time Planner</title>
+<style>
+:root {
+  font-size: 16px;
+  --bg: #0d1117;
+  --fg: #c9d1d9;
+  --accent: #58a6ff;
+}
+body {
+  margin:0; padding:2rem;
+  background:var(--bg); color:var(--fg);
+  font-family: system-ui, sans-serif;
+}
+h1 {
+  font-size:3rem; margin-bottom:1rem; text-align:center;
+}
+.container {
+  max-width: 800px; margin: 0 auto;
+}
+input, select, button {
+  padding:0.75rem 1rem; border:none; border-radius:0.5rem;
+  font-size:1.25rem;
+}
+input,select {
+  background:#161b22; color:var(--fg);
+}
+button {
+  background:var(--accent); color:#fff; cursor:pointer;
+}
+.mode-toggle {
+  display:flex; justify-content:center; gap:1rem; margin-bottom:2rem;
+}
+.section {
+  margin-bottom:2rem;
+}
+.results {
+  display:grid; gap:1rem;
+}
+.card {
+  background:#161b22; padding:1rem 1.5rem; border-radius:0.75rem;
+}
+.card h3 {margin:0 0 0.5rem 0; font-size:2rem;}
+.card p {margin:0;}
+.big {font-size:2.5rem; font-weight:bold;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Money ⇄ Time Planner</h1>
+<div class="mode-toggle">
+  <button id="rateModeBtn">Rate → Milestones</button>
+  <button id="amountModeBtn">Amount → Time</button>
+</div>
+<div id="rateMode" class="mode">
+  <div class="section">
+    <label>$ per hour: <input id="rateInput" type="number" min="0" step="0.01" value="25"></label>
+    <label>Hours per working day: <input id="hoursPerDay" type="number" min="1" step="0.5" value="8"></label>
+  </div>
+  <div class="section">
+    <button id="calcMilestonesBtn">Calculate Milestones</button>
+  </div>
+  <div id="milestones" class="results"></div>
+</div>
+<div id="amountMode" class="mode" style="display:none;">
+  <div class="section">
+    <label>Target amount $: <input id="targetAmount" type="number" min="0" step="1" value="1000"></label>
+    <label>$ per hour: <input id="rateInput2" type="number" min="0" step="0.01" value="25"></label>
+    <label>Hours per working day: <input id="hoursPerDay2" type="number" min="1" step="0.5" value="8"></label>
+  </div>
+  <div class="section">
+    <button id="calcTargetBtn">Calculate Time</button>
+  </div>
+  <div id="targetResult" class="results"></div>
+</div>
+</div>
+<script>
+const rateModeBtn = document.getElementById('rateModeBtn');
+const amountModeBtn = document.getElementById('amountModeBtn');
+const rateMode = document.getElementById('rateMode');
+const amountMode = document.getElementById('amountMode');
+
+rateModeBtn.addEventListener('click', () => {
+  rateMode.style.display = '';
+  amountMode.style.display = 'none';
+});
+amountModeBtn.addEventListener('click', () => {
+  amountMode.style.display = '';
+  rateMode.style.display = 'none';
+});
+
+const milestonesArray = [50, 100, 250, 500, 1000, 2500, 5000, 10000];
+
+document.getElementById('calcMilestonesBtn').addEventListener('click', () => {
+  const rate = parseFloat(document.getElementById('rateInput').value);
+  const hpd = parseFloat(document.getElementById('hoursPerDay').value);
+  const container = document.getElementById('milestones');
+  container.innerHTML = '';
+  milestonesArray.forEach(money => {
+    const hours = money / rate;
+    const days = hours / hpd;
+    const weeks = days / 5; // 5 working days per week
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3>$${money.toLocaleString()}</h3>
+      <p class="big">${hours.toFixed(1)} hours</p>
+      <p>${days.toFixed(1)} work‑days (${weeks.toFixed(2)} weeks)</p>
+    `;
+    container.appendChild(card);
+  });
+});
+
+document.getElementById('calcTargetBtn').addEventListener('click', () => {
+  const amount = parseFloat(document.getElementById('targetAmount').value);
+  const rate = parseFloat(document.getElementById('rateInput2').value);
+  const hpd = parseFloat(document.getElementById('hoursPerDay2').value);
+  const hours = amount / rate;
+  const days = hours / hpd;
+  const weeks = days / 5;
+  const container = document.getElementById('targetResult');
+  container.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <h3>To earn $${amount.toLocaleString()}</h3>
+    <p class="big">${hours.toFixed(1)} hours</p>
+    <p>${days.toFixed(1)} work‑days (${weeks.toFixed(2)} weeks)</p>
+  `;
+  container.appendChild(card);
+});
+</script>
+</body>
+</html>
